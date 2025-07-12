@@ -1,67 +1,32 @@
-require('dotenv').config(); 
 const express = require('express');
 const mongoose = require('mongoose');
+const authRoutes = require('./routes/auth');
+const forumRoutes = require('./routes/forum');
+const materialRoutes = require('./routes/material');
 const cors = require('cors');
+const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
-const passport = require('passport');
-const session = require('express-session'); // Added
-const connectDB = require('./config/db');
 
-// Routes
-const authRoutes = require('./routes/auth');
-const materialRoutes = require('./routes/material');
-const forumRoutes = require('./routes/forum');
-const feedbackRoutes = require('./routes/feedback');
-const usersRoutes = require('./routes/users');
-
-// Initialize app
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, { 
-  cors: { 
-    origin: 'http://localhost:3000' 
-  } 
-});
+const io = socketIo(server, { cors: { origin: '*' } });
 
-// Database connection
-connectDB();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
-
-// ✅ Added express-session middleware
-app.use(session({
-  secret: process.env.JWT_SECRET,
-  resave: false,
-  saveUninitialized: false
-}));
-
-app.use(passport.initialize());
-app.use(passport.session()); // ✅ Required for persistent login sessions
-
-// Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/material', materialRoutes);
 app.use('/api/forum', forumRoutes);
-app.use('/api/feedback', feedbackRoutes);
-app.use('/api/users', usersRoutes);
+app.use('/api/material', materialRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Basic route
-app.get('/', (req, res) => res.send('API running'));
+mongoose.connect('mongodb://localhost:27017/mentorship', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
 
-// Socket.io
 io.on('connection', (socket) => {
-  socket.on('join', (userId) => {
-    socket.join(userId);
-  });
-
-  socket.on('sendMessage', ({ senderId, receiverId, content }) => {
-    io.to(receiverId).emit('receiveMessage', { senderId, content });
-  });
+  socket.on('newPost', (post) => io.emit('newPost', post));
+  socket.on('sendMessage', (msg) => io.emit('receiveMessage', msg));
 });
 
-// Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
