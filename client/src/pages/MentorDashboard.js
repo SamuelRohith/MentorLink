@@ -9,7 +9,7 @@ function MentorDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', paddingLeft: '20px' }}>
         <div style={{ background: '#16213E', padding: '20px', borderRadius: '10px' }}>
           <h3>My Bookings</h3>
-          <p>View your scheduled sessions with a calendar.</p>
+          <p>Scheduled sessions with a calendar.</p>
           <button>Go to My Bookings</button>
         </div>
         <div style={{ background: '#16213E', padding: '20px', borderRadius: '10px' }}>

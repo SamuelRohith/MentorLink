@@ -13,7 +13,7 @@ function StudentDashboard() {
           <button>Go to Find a Mentor</button>
         </div>
         <div style={{ background: '#16213E', padding: '20px', borderRadius: '10px' }}>
-          <h3>My Notes and Shared Materials</h3>
+          <h3>Notes</h3>
           <p>Access your notes and materials shared by mentors.</p>
           <button>Go to My Notes</button>
         </div>
